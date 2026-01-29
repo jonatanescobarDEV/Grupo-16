@@ -11,7 +11,6 @@ export async function ejecutarAnalisis() {
     contenidoFuente = "";
     tokens = [];
 
-    // Prioriza el archivo si se selecciono uno, de lo contrario usa el texto escrito
     if (selectorArchivos.files[0]) {
         contenidoFuente = await selectorArchivos.files[0].text();
         areaTexto.value = contenidoFuente;
@@ -19,7 +18,6 @@ export async function ejecutarAnalisis() {
         contenidoFuente = areaTexto.value;
     }
 
-    // Fase 2: Automata a Pila (Sintactico)
     const validacion = validarEstructura();
     mostrarResultado(validacion);
 }
@@ -120,26 +118,18 @@ function validarEstructura() {
     }
 
     if (q === qF){
-        return true;
+        return "reconoce";
     } else {
-        return null;
+        return "error";
     }
 }
 
 function mostrarResultado(val) {
     let panel = document.getElementById('panelResultados');
-    let clase = val ? "valido" : "error";
-    let texto = val ? "ARCHIVO CORRECTO" : "ARCHIVO INCORRECTO";
+    let clase = val === "reconoce" ? "valido" : "error";
+    let texto = val === "reconoce" ? "ARCHIVO CORRECTO" : "ARCHIVO INCORRECTO";
 
     let html = `<div class="status-banner ${clase}">${texto}</div>`;
-    
-    /*
-    if (!val) {
-        html += `<ul style="margin-top:20px; color:#721c24;">`;
-        val.mensajes.forEach(m => html += `<li>${m}</li>`);
-        html += `</ul>`;
-    }
-    */
 
     panel.innerHTML = html;
 }
