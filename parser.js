@@ -5,10 +5,11 @@ const ALFABETO = ["si", "sino", "finsi", "mientras", "finmientras"];
 export async function ejecutarAnalisis() {
     const selectorArchivos = document.getElementById('archivo');
     const areaTexto = document.getElementById('editor');
-
+    
     posicionActual = 0;
     contenidoFuente = "";
-    
+    const tokens = [];
+
     // Prioriza el archivo si se selecciono uno, de lo contrario usa el texto escrito
     if (selectorArchivos.files[0]) {
         contenidoFuente = await selectorArchivos.files[0].text();
@@ -17,15 +18,10 @@ export async function ejecutarAnalisis() {
         contenidoFuente = areaTexto.value;
     }
 
-    if (contenidoFuente.trim() === "") return;
-
-    posicionActual = 0;
-    const tokens = [];
-
     // Fase 1: Scanner (Lexico)
     while (posicionActual < contenidoFuente.length) {
         let token = obtenerSiguienteToken();
-        if (token && token.tipo !== "SKIP") {
+        if (token !== "SKIP") {
             tokens.push(token);
         }
     }
@@ -38,11 +34,6 @@ export async function ejecutarAnalisis() {
 function obtenerSiguienteToken() {
     let caracter = contenidoFuente.charAt(posicionActual);
 
-    if (/\s/.test(caracter)) {
-        posicionActual++;
-        return { tipo: "SKIP" };
-    }
-
     if (/[a-zA-Z]/.test(caracter)) {
         let lexema = "";
         while (posicionActual < contenidoFuente.length && /[a-zA-Z]/.test(contenidoFuente.charAt(posicionActual))) {
@@ -50,11 +41,10 @@ function obtenerSiguienteToken() {
             posicionActual++;
         }
         let lexLower = lexema.toLowerCase();
-        return { tipo: ALFABETO.includes(lexLower) ? "PR" : "ID", lexema: lexLower };
+        return ALFABETO.includes(lexLower) ? lexLower : "SKIP";
     }
 
     posicionActual++;
-    return { tipo: "OTRO", lexema: caracter };
 }
 
 function validarEstructura(tokens) {
@@ -63,15 +53,15 @@ function validarEstructura(tokens) {
 
     for (let token of tokens) {
         // PUSH: Empilar aperturas
-        if (token.lexema === "si" || token.lexema === "mientras") {
-            pila.push(token.lexema);
+        if (token === "si" || token === "mientras") {
+            pila.push(token);
         } 
         // POP: Desempilar y validar cierres
-        else if (token.lexema === "finsi") {
+        else if (token === "finsi") {
             if (pila.length === 0 || pila.pop() !== "si") {
                 errores.push("Error: finsi sin si");
             }
-        } else if (token.lexema === "finmientras") {
+        } else if (token === "finmientras") {
             if (pila.length === 0 || pila.pop() !== "mientras") {
                 errores.push("Error: finmientras sin mientras");
             }
