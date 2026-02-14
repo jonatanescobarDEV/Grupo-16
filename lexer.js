@@ -1,8 +1,7 @@
-// Variables de control global
-let posicionActual = 0;
-let contenidoFuente = "";
+import { contenidoFuente } from "./index.js";
 
-// Diccionario de apoyo
+let posicionActual = 0;
+
 const PALABRAS_RESERVADAS = ["auto", "break", "case", "char", "const", "continue", "default",
     "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "inline", "int",
     "long", "register", "restrict", "return", "short", "signed", "sizeof", "static", "struct",
@@ -11,12 +10,7 @@ const PALABRAS_RESERVADAS = ["auto", "break", "case", "char", "const", "continue
     "_Static_assert", "_Thread_local"];
 
 export async function ejecutarAnalisis() {
-    const selectorArchivos = document.getElementById('archivo');
-    const areaTexto = document.getElementById('editor');
-    
-    // Reiniciamos para un nuevo análisis
     posicionActual = 0;
-    contenidoFuente = "";
     const contadorTokens = {
         PR: [],
         ID: [],
@@ -27,15 +21,6 @@ export async function ejecutarAnalisis() {
         CARACTER: []
     };
 
-    // Selección de la fuente de datos
-    if (selectorArchivos.files[0]) {
-        contenidoFuente = await selectorArchivos.files[0].text();
-        areaTexto.value = contenidoFuente;
-    } else {
-        contenidoFuente = areaTexto.value;
-    }
-
-    // Recorrido principal: Seguimos la lógica original de avanzar por el texto
     while (posicionActual < contenidoFuente.length) {
         let resultadoToken = obtenerSiguienteToken();
 
@@ -69,7 +54,7 @@ function obtenerSiguienteToken() {
     let caracter = contenidoFuente.charAt(posicionActual);
 
     // Se omiten espacios, tabulaciones y saltos de línea
-    if (caracter === ' ' || caracter === '\n' || caracter === '\r' || caracter === '\t') {
+    if (/\s/.test(caracter)) {
         posicionActual++;
         return { tipo: "SKIP" };
     }

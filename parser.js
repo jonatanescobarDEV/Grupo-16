@@ -1,23 +1,13 @@
+import { contenidoFuente } from "./index.js";
+
 let posicionActual = 0;
-let contenidoFuente = "";
 let html = "";
 let tokens = [];
 const ALFABETO = ["si", "sino", "finsi", "mientras", "finmientras"];
 
 export async function ejecutarAnalisis() {
-    const selectorArchivos = document.getElementById('archivo');
-    const areaTexto = document.getElementById('editor');
-    
     posicionActual = 0;
-    contenidoFuente = "";
     tokens = [];
-
-    if (selectorArchivos.files[0]) {
-        contenidoFuente = await selectorArchivos.files[0].text();
-        areaTexto.value = contenidoFuente;
-    } else {
-        contenidoFuente = areaTexto.value;
-    }
 
     const validacion = validarEstructura();
     mostrarResultado(validacion);
@@ -143,12 +133,12 @@ function mostrarEstructuraVerificada(clase){
     while (tokens.length > 0) {
         let token = tokens.shift();
         if (token === "si" || token === "mientras"){
-            html += `<div class="codigo-${clase}"> `+ "\t".repeat(contTab) + token + "</div>";
+            html += `<div class="codigo-${clase}"> `+ "│\t".repeat(contTab) + token + "</div>";
             contTab++;
         } else if (token === "finsi" || token === "finmientras"){
             contTab--;
             if (contTab < 0) contTab = 0;
-            html += `<div class="codigo-${clase}"> ` + "\t".repeat(contTab) + token + "</div>";
+            html += `<div class="codigo-${clase}"> ` + "│\t".repeat(contTab) + token + "</div>";
         }
     }
 }

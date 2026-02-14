@@ -1,5 +1,4 @@
-import * as lexer from './lexer.js';
-import * as parser from './parser.js';
+import * as index from './index.js';
 
 document.getElementById('limpiar').addEventListener('click', limpiarTodo);
 document.getElementById('ejecutar').addEventListener('click', ejecutarAnalisis);
@@ -18,8 +17,7 @@ async function ejecutarAnalisis() {
     if(document.getElementById('editor').value === "" && !document.getElementById('archivo').files[0])
         return alert("Por favor, ingresa código o sube un archivo o texto.");
 
-    await lexer.ejecutarAnalisis();
-    await parser.ejecutarAnalisis();
+    await index.ejecutarAnalisis();
 }
 
 function limpiarTodo() {
@@ -30,7 +28,7 @@ function limpiarTodo() {
     document.getElementById('panelResultados').innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar... \n(si-sino-finsi-mientras-finmientras)</p>';
 }
 
-// Lógica de las pestañas
+/// Lógica de las pestañas
 function openTab(evt, tabName) {
     var panes = document.getElementsByClassName("tab-pane");
     for (var i = 0; i < panes.length; i++) {
