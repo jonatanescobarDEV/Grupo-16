@@ -1,48 +1,60 @@
 import * as index from './index.js';
 
-document.getElementById('limpiar').addEventListener('click', limpiarTodo);
-document.getElementById('ejecutar').addEventListener('click', ejecutarAnalisis);
+const botonEjecutar = document.getElementById('ejecutar');
+const botonLimpiar = document.getElementById('limpiar');
+botonEjecutar.addEventListener('click', ejecutarAnalisis);
+botonLimpiar.addEventListener('click', limpiarTodo);
 
-document.getElementById('panelResultados').innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar... \n(si-sino-finsi-mientras-finmientras)</p>';
+export const panelLexer = document.getElementById('lexer-resultados');
+export const panelEstructura = document.getElementById('panelResultados');
+export const panelParser = document.getElementById('panelLL1');
+panelEstructura.innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar... \n(si-sino-finsi-mientras-finmientras)\n\nEjemplo (A resolver):\nsi\nmientras\nsi\nfinsi\nmientras\nsi\nfinsi\nfinmientras\nfinsi</p>';
+panelParser.innerHTML = '<p class="empty-msg">La ejecucion aritmetica aparecerá aquí...\n\nEjemplo (A resolver):\na = 9;\nb = 2;\na = a + (b * 2);\ncout<< a;\ncout<< a + 45</p>';
 
-// Muestra el nombre del archivo al seleccionarlo
-document.getElementById('archivo').onchange = function () {
+export const selectorArchivoCodFuente = document.getElementById('archivo');
+export const objetoNombreArchivo = document.getElementById('file-name');
+
+export const areaTexto = document.getElementById('editor');
+
+selectorArchivoCodFuente.onchange = function () {
     if (this.files[0]) {
-        document.getElementById('file-name').textContent = "Seleccionado: " + this.files[0].name;
+        objetoNombreArchivo.textContent = "Seleccionado: " + this.files[0].name;
     }
 }
 
-//Ejecutar y limpiar
 async function ejecutarAnalisis() {
-    if(document.getElementById('editor').value === "" && !document.getElementById('archivo').files[0])
+    if(areaTexto.value === "" && !selectorArchivoCodFuente.files[0])
         return alert("Por favor, ingresa código o sube un archivo o texto.");
 
     await index.ejecutarAnalisis();
 }
 
 function limpiarTodo() {
-    document.getElementById('archivo').value = "";
-    document.getElementById('file-name').textContent = "Sin archivo seleccionado";
-    document.getElementById('editor').value = "";
-    document.getElementById('lexer-resultados').innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>';
-    document.getElementById('panelResultados').innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar... \n(si-sino-finsi-mientras-finmientras)</p>';
+    selectorArchivoCodFuente.value = "";
+    objetoNombreArchivo.textContent = "Sin archivo seleccionado";
+    areaTexto.value = "";
+
+    panelLexer.innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>';
+    panelEstructura.innerHTML = '<p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar... \n(si-sino-finsi-mientras-finmientras)\n\nEjemplo (A resolver):\nsi\nmientras\nsi\nfinsi\nmientras\nsi\nfinsi\nfinmientras\nfinsi</p>';
+    panelParser.innerHTML = '<p class="empty-msg">La ejecucion aritmetica aparecerá aquí...\n\nEjemplo (A resolver):\na = 9;\nb = 2;\na = a + (b * 2);\ncout<< a;\ncout<< a + 45</p>';
 }
 
-/// Lógica de las pestañas
-function openTab(evt, tabName) {
-    var panes = document.getElementsByClassName("tab-pane");
-    for (var i = 0; i < panes.length; i++) {
-        panes[i].style.display = "none";
+function openTab(evento, nombrePestaña) {
+    var contenidos = document.getElementsByClassName("tab-pane");
+    for (var i = 0; i < contenidos.length; i++) {
+        contenidos[i].style.display = "none";
     }
 
-    var buttons = document.getElementsByClassName("tab-btn");
-    for (var i = 0; i < buttons.length; i++) {
-        buttons[i].classList.remove("active");
+    var botones = document.getElementsByClassName("tab-btn");
+    for (var i = 0; i < botones.length; i++) {
+        botones[i].classList.remove("active");
     }
 
-    document.getElementById(tabName).style.display = "block";
+    const elementoDestino = document.getElementById(nombrePestaña);
 
-    evt.currentTarget.classList.add("active");
+    elementoDestino.style.display = "block";
+
+    evento.currentTarget.classList.add("active");
 }
 
 const botonesTabs = document.querySelectorAll('.tab-btn');

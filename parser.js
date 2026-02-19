@@ -1,7 +1,7 @@
 import { contenidoFuente } from "./index.js";
+import { mostrarResultadoPanelEstructura } from "./ui.js";
 
 let posicionActual = 0;
-let html = "";
 let tokens = [];
 const ALFABETO = ["si", "sino", "finsi", "mientras", "finmientras"];
 
@@ -10,7 +10,7 @@ export async function ejecutarAnalisis() {
     tokens = [];
 
     const validacion = validarEstructura();
-    mostrarResultado(validacion);
+    mostrarResultadoPanelEstructura(validacion, tokens);
 }
 
 function obtenerSiguienteToken() {
@@ -27,7 +27,6 @@ function obtenerSiguienteToken() {
 
             if (ALFABETO.includes(lexLower)) {
                 tokens.push(lexLower);
-                posicionActual++;
                 return lexLower;
             }
         } else {
@@ -112,33 +111,5 @@ function validarEstructura() {
         return "reconoce";
     } else {
         return "error";
-    }
-}
-
-
-function mostrarResultado(val) {
-    let panel = document.getElementById('panelResultados');
-    let clase = val === "reconoce" ? "valido" : "error";
-    let texto = val === "reconoce" ? "ARCHIVO CORRECTO" : "ARCHIVO INCORRECTO";
-    
-    html = `<div class="status-banner ${clase}">${texto}</div>`;
-    
-    mostrarEstructuraVerificada(clase)
-    
-    panel.innerHTML = html;
-}
-
-function mostrarEstructuraVerificada(clase){
-    let contTab = 0;
-    while (tokens.length > 0) {
-        let token = tokens.shift();
-        if (token === "si" || token === "mientras"){
-            html += `<div class="codigo-${clase}"> `+ "│\t".repeat(contTab) + token + "</div>";
-            contTab++;
-        } else if (token === "finsi" || token === "finmientras"){
-            contTab--;
-            if (contTab < 0) contTab = 0;
-            html += `<div class="codigo-${clase}"> ` + "│\t".repeat(contTab) + token + "</div>";
-        }
     }
 }

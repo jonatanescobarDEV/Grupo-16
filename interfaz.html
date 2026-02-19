@@ -50,7 +50,8 @@
                     
                     <div class="tabs-header">
                         <button class="tab-btn" data-target="lexer">Lexer</button>
-                        <button class="tab-btn active" data-target="parser">Parser</button>
+                        <button class="tab-btn" data-target="parser">Estructura si-mientras</button>
+                        <button class="tab-btn active" data-target="parserll1">Parser LL(1)</button>
                     </div>
 
                     <div class="tab-content-box">
@@ -61,9 +62,15 @@
                             </div>
                         </div>
 
-                        <div id="parser" class="tab-pane" style="display: block;">
+                        <div id="parser" class="tab-pane">
                             <div id="panelResultados">
                                 <p class="empty-msg">Los resultados apareceran aqui despues de Ejecutar...</p>
+                            </div>
+                        </div>
+
+                        <div id="parserll1" class="tab-pane" style="display: block;">
+                            <div id="panelLL1">
+                                <p class="empty-msg">La ejecucion aritmetica aparecerá aquí...</p>
                             </div>
                         </div>
 

@@ -1,4 +1,6 @@
-export function mostrarResultadosEnTabla(contador) {
+import { panelLexer, panelEstructura, panelParser} from "./main.js";
+
+export function mostrarResultadoPanelLexer(contador) {
     let tablaHTML = "<table class='results-table'>";
     tablaHTML += "<thead><tr><th>Tipo de Token</th><th>Cantidad</th><th>Lexemas Encontrados</th></tr></thead>";
     tablaHTML += "<tbody>";
@@ -18,11 +20,10 @@ export function mostrarResultadosEnTabla(contador) {
     }
 
     tablaHTML += "</tbody></table>";
-    document.getElementById('lexer-resultados').innerHTML = tablaHTML;
+    panelLexer.innerHTML = tablaHTML;
 }
 
-function mostrarResultado(val) {
-    let panel = document.getElementById('panelResultados');
+export function mostrarResultadoPanelEstructura(val, tokens) {
     let clase = val === "reconoce" ? "valido" : "error";
     let texto = val === "reconoce" ? "ARCHIVO CORRECTO" : "ARCHIVO INCORRECTO";
     let html = `<div class="status-banner ${clase}">${texto}</div>`;
@@ -40,5 +41,9 @@ function mostrarResultado(val) {
         }
     }
     
-    panel.innerHTML = html;
+    panelEstructura.innerHTML = html;
+}
+
+export function mostrarResultadoPanelParser(resultados) {
+    panelParser.innerHTML = resultados.map(res => `<div class="codigo-valido">${res}</div>`).join("");
 }
