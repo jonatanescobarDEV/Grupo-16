@@ -4,7 +4,7 @@
 int main() {
     const double PI = 3.141592;
     register int iteraciones = 0;
-    int contador_seguridad = 0;
+    _Atomic int contador_seguridad = 0;
     double radio, area, perimetro;
     _Bool entrada_valida = 0;
 

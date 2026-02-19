@@ -2,7 +2,7 @@
     white-space: pre; 
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 0px;
 }
 
 .status-banner { 
@@ -31,55 +31,4 @@
 
 .codigo-error {
     color: red;
-}
-
-#panelLL1 {
-	padding: 20px;
-	background-color: #ffffff;
-	border-radius: 8px;
-	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.status-banner.valido-ll1 {
-	background-color: #d4edda;
-	color: #155724;
-	padding: 25px;
-	border-radius: 15px;
-	text-align: center;
-	font-size: 28px;
-	font-weight: bold;
-	margin-bottom: 20px;
-	border: 1px solid #c3e6cb;
-	text-transform: uppercase;
-}
-
-.linea-asignacion {
-	color: #0000ff;
-	font-family: 'Courier New', Courier, monospace;
-	font-size: 18px;
-	margin: 8px 0;
-	padding-left: 10px;
-}
-
-.linea-cout {
-	color: #0000ff;
-	font-family: 'Courier New', Courier, monospace;
-	font-size: 18px;
-	margin: 8px 0;
-	padding-left: 10px;
-}
-
-.linea-cout b {
-	color: #00008b;
-	font-weight: 900;
-}
-
-.error-ll1 {
-	background-color: #f8d7da;
-	color: #721c24;
-	padding: 15px;
-	border-radius: 8px;
-	border-left: 5px solid #f5c6cb;
-	margin-bottom: 15px;
-	font-family: sans-serif;
 }

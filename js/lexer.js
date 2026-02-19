@@ -1,8 +1,9 @@
-// Variables de control global
-let posicionActual = 0;
-let contenidoFuente = "";
+import { contenidoFuente } from "./index.js";
+import { mostrarResultadoPanelLexer } from "./ui.js";
 
-// Diccionario de apoyo
+let posicionActual = 0;
+let lineaActual = 1;
+
 const PALABRAS_RESERVADAS = ["auto", "break", "case", "char", "const", "continue", "default",
     "do", "double", "else", "enum", "extern", "float", "for", "goto", "if", "inline", "int",
     "long", "register", "restrict", "return", "short", "signed", "sizeof", "static", "struct",
@@ -11,12 +12,7 @@ const PALABRAS_RESERVADAS = ["auto", "break", "case", "char", "const", "continue
     "_Static_assert", "_Thread_local"];
 
 export async function ejecutarAnalisis() {
-    const selectorArchivos = document.getElementById('archivo');
-    const areaTexto = document.getElementById('editor');
-    
-    // Reiniciamos para un nuevo análisis
     posicionActual = 0;
-    contenidoFuente = "";
     const contadorTokens = {
         PR: [],
         ID: [],
@@ -27,15 +23,6 @@ export async function ejecutarAnalisis() {
         CARACTER: []
     };
 
-    // Selección de la fuente de datos
-    if (selectorArchivos.files[0]) {
-        contenidoFuente = await selectorArchivos.files[0].text();
-        areaTexto.value = contenidoFuente;
-    } else {
-        contenidoFuente = areaTexto.value;
-    }
-
-    // Recorrido principal: Seguimos la lógica original de avanzar por el texto
     while (posicionActual < contenidoFuente.length) {
         let resultadoToken = obtenerSiguienteToken();
 
@@ -62,31 +49,34 @@ export async function ejecutarAnalisis() {
         }
     }
 
-    mostrarResultadosEnTabla(contadorTokens);
+    mostrarResultadoPanelLexer(contadorTokens);
 }
 
-function obtenerSiguienteToken() {
+export function obtenerSiguienteToken() {
     let caracter = contenidoFuente.charAt(posicionActual);
 
-    // Se omiten espacios, tabulaciones y saltos de línea
-    if (caracter === ' ' || caracter === '\n' || caracter === '\r' || caracter === '\t') {
-        posicionActual++;
-        return { tipo: "SKIP" };
+    if (posicionActual >= contenidoFuente.length) {
+        return { tipo: "EOF", lexema: "$", linea: lineaActual };
     }
 
-    // Comentarios 
+    if (/\s/.test(caracter)) {
+        if (caracter === '\n') {
+            lineaActual++;
+        }
+        posicionActual++;
+        return { tipo: "SKIP", linea: lineaActual };
+    }
+
     if (caracter === '/') {
         let siguiente = contenidoFuente.charAt(posicionActual + 1);
 
-        // Comentario de una línea
         if (siguiente === '/') {
             while (posicionActual < contenidoFuente.length && contenidoFuente.charAt(posicionActual) !== '\n') {
                 posicionActual++;
             }
-            return { tipo: "SKIP" };
+            return { tipo: "SKIP" , linea: lineaActual };
         }
 
-        // Comentario de bloque
         if (siguiente === '*') {
             posicionActual = posicionActual + 2;
             while (posicionActual < contenidoFuente.length) {
@@ -96,7 +86,7 @@ function obtenerSiguienteToken() {
                 }
                 posicionActual++;
             }
-            return { tipo: "SKIP" };
+            return { tipo: "SKIP" , linea: lineaActual };
         }
     }
     
@@ -104,7 +94,7 @@ function obtenerSiguienteToken() {
         while (posicionActual < contenidoFuente.length && contenidoFuente.charAt(posicionActual) !== '\n') {
             posicionActual++;
         }
-        return { tipo: "SKIP" };
+        return { tipo: "SKIP" , linea: lineaActual };
     }
 
     if (caracter === '"') {
@@ -118,7 +108,7 @@ function obtenerSiguienteToken() {
                 break;
             }
         }
-        return { tipo: "CADENA", lexema: textoCadena };
+        return { tipo: "CADENA", lexema: textoCadena, linea: lineaActual };
     }
 
     if (caracter === "'") {
@@ -132,47 +122,35 @@ function obtenerSiguienteToken() {
                 break;
             }
         }
-        return { tipo: "CARACTER", lexema: textoChar };
+        return { tipo: "CARACTER", lexema: textoChar, linea: lineaActual };
     }
 
-    // Identificadores y Palabras Reservadas
-    if ((caracter >= 'a' && caracter <= 'z') || (caracter >= 'A' && caracter <= 'Z') || caracter === '_') {
+    if (/[a-zA-Z_]/.test(caracter)) {
         let textoAcumulado = "";
         
         while (posicionActual < contenidoFuente.length) {
             let actual = contenidoFuente.charAt(posicionActual);
-            if ((actual >= 'a' && actual <= 'z') || (actual >= 'A' && actual <= 'Z') || (actual >= '0' && actual <= '9') || actual === '_') {
-                textoAcumulado = textoAcumulado + actual;
+            if (/[a-zA-Z0-9_]/.test(actual)) {
+                textoAcumulado += actual;
                 posicionActual++;
+            } else if (/\s/.test(actual)) {
+                break;
             } else {
                 break;
             }
         }
 
-        // Verificar palabra reservada
-        let esReservada = false;
-        for (let i = 0; i < PALABRAS_RESERVADAS.length; i++) {
-            if (PALABRAS_RESERVADAS[i] === textoAcumulado) {
-                esReservada = true;
-                break;
-            }
-        }
+        let esReservada = PALABRAS_RESERVADAS.includes(textoAcumulado) ? true : false;
 
-        // Clasificación final
-        let categoriaFinal = "";
-        if (esReservada) {
-            categoriaFinal = "PR";
-        } else {
-            categoriaFinal = "ID";
-        }
+        let categoriaFinal = esReservada ? "PR" : "ID";
 
         return {
             tipo: categoriaFinal,
-            lexema: textoAcumulado
+            lexema: textoAcumulado,
+            linea: lineaActual
         };
     }
 
-    // Números (Enteros y decimal)
     if (caracter >= '0' && caracter <= '9') {
         let numeroTexto = "";
         let tieneDecimal = false;
@@ -200,11 +178,11 @@ function obtenerSiguienteToken() {
 
         return {
             tipo: tipoNumero,
-            lexema: numeroTexto
+            lexema: numeroTexto,
+            linea: lineaActual
         };
     }
 
-    //  Operadores y símbolos especiales
     let listaDeOperadores = "+-*/%=<>!&|;,()[]{}";
     let esOperador = false;
 
@@ -221,42 +199,37 @@ function obtenerSiguienteToken() {
 
         if (caracter === '=' && siguienteCaracter === '=') { operadorFinal = "=="; posicionActual++; }
         else if (caracter === '!' && siguienteCaracter === '=') { operadorFinal = "!="; posicionActual++; }
-        else if (caracter === '<' && siguienteCaracter === '=') { operadorFinal = "<="; posicionActual++; }
-        else if (caracter === '>' && siguienteCaracter === '=') { operadorFinal = ">="; posicionActual++; }
-        // NUEVO: Soporte para el operador de flujo de cout
-        else if (caracter === '<' && siguienteCaracter === '<') { operadorFinal = "<<"; posicionActual++; } 
-        else if (caracter === '+' && siguienteCaracter === '+') { operadorFinal = "++"; posicionActual++; }
-        else if (caracter === '-' && siguienteCaracter === '-') { operadorFinal = "--"; posicionActual++; }
+        else if (caracter === '<'){
+            if (siguienteCaracter === '=') { operadorFinal = "<="; posicionActual++; }
+            else if (siguienteCaracter === '<') { operadorFinal = "<<"; posicionActual++; }
+        }
+        else if (caracter === '>') {
+            if (siguienteCaracter === '=') { operadorFinal = ">="; posicionActual++; }
+            else if (siguienteCaracter === '>') { operadorFinal = ">>"; posicionActual++; }
+        }
+        else if (caracter === '+') {
+            if (siguienteCaracter === '+') { operadorFinal = "++"; posicionActual++; }
+            else if (siguienteCaracter === '=') { operadorFinal = "+="; posicionActual++; }
+        }
+        else if (caracter === '-') {
+            if (siguienteCaracter === '-') { operadorFinal = "--"; posicionActual++; }
+            else if (siguienteCaracter === '=') { operadorFinal = "-="; posicionActual++; }
+        }
+        else if (caracter === '*' && siguienteCaracter === '=') { operadorFinal = "*="; posicionActual++; }
+        else if (caracter === '/' && siguienteCaracter === '=') { operadorFinal = "/="; posicionActual++; }
+        else if (caracter === '%' && siguienteCaracter === '=') { operadorFinal = "%="; posicionActual++; }
         else if (caracter === '&' && siguienteCaracter === '&') { operadorFinal = "&&"; posicionActual++; }
         else if (caracter === '|' && siguienteCaracter === '|') { operadorFinal = "||"; posicionActual++; }
 
         posicionActual++;
-        return { tipo: "OP", lexema: operadorFinal };
+        return { tipo: "OP", lexema: operadorFinal, linea: lineaActual };
     }
 
     posicionActual++;
-    return { tipo: "SKIP" };
+    return { tipo: "SKIP", linea: lineaActual };
 }
 
-function mostrarResultadosEnTabla(contador) {
-    let tablaHTML = "<table class='results-table'>";
-    tablaHTML += "<thead><tr><th>Tipo de Token</th><th>Cantidad</th><th>Lexemas Encontrados</th></tr></thead>";
-    tablaHTML += "<tbody>";
-
-    let categorias = ["PR", "ID", "OP", "NUM", "NUM_REAL", "CADENA", "CARACTER"];
-
-    for (let i = 0; i < categorias.length; i++) {
-        let clave = categorias[i];
-        let listaLexemas = contador[clave];
-
-        tablaHTML += "<tr>";
-        tablaHTML += "<td class='token-type'>" + clave + "</td>";
-        tablaHTML += "<td>" + listaLexemas.length + "</td>";
-        let simbolos = listaLexemas.length > 0 ? listaLexemas.join('<span class="separador"> - </span>') : "-";
-        tablaHTML += "<td>" + simbolos + "</td>";
-        tablaHTML += "</tr>";
-    }
-
-    tablaHTML += "</tbody></table>";
-    document.getElementById('lexer-resultados').innerHTML = tablaHTML;
+export function reiniciarLexer() {
+    posicionActual = 0;
+    lineaActual = 1;
 }
